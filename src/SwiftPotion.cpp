@@ -194,10 +194,9 @@ RE::AlchemyItem* SwiftPotion::GetPotion(RE::Actor* aPlayer, PotionData &SystemDa
             // Loop through all of the magic effects on the potion
             for (auto& eEffect : pPotion->effects) {
                 if (eEffect->baseEffect->GetFullName() == SystemData.EffectName) {
-                    if (!iMagnitude || (SystemData.BestValue == 0 && eEffect->effectItem.magnitude > iMagnitude) || (SystemData.BestValue == 1 && eEffect->effectItem.magnitude < iMagnitude)) {
-                        iMagnitude = eEffect->effectItem.magnitude;
-                        pFinalPotion = pPotion;
-                    } else if (SystemData.BestValue == 2) {
+
+                    // Optimal Value if selected
+                    if (SystemData.BestValue == 2) {
                         // If the potion has no duration, set it to 1
                         float potionDuration = NULL;
                         if (eEffect->effectItem.duration <= 0)
@@ -207,9 +206,14 @@ RE::AlchemyItem* SwiftPotion::GetPotion(RE::Actor* aPlayer, PotionData &SystemDa
 
                         float healthGap = abs(utility->GetPlayerDifference(SystemData.Attribute) - (eEffect->effectItem.magnitude * potionDuration));
                         if (healthGap < iMagnitude) {
-                            iMagnitude = eEffect->effectItem.magnitude;
+                            iMagnitude = healthGap;
                             pFinalPotion = pPotion;
                         }
+                    
+                    // Higher vs Lower Poition
+                    } else if (!iMagnitude || (SystemData.BestValue == 0 && eEffect->effectItem.magnitude > iMagnitude) || (SystemData.BestValue == 1 && eEffect->effectItem.magnitude < iMagnitude)) {
+                        iMagnitude = eEffect->effectItem.magnitude;
+                        pFinalPotion = pPotion;
                     }
                 }
             }
